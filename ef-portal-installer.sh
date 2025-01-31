@@ -10,6 +10,7 @@ EF_PORTAL_DCVSM_SUPPORT="false"
 EF_PORTAL_EFADMIN_USER="efadmin"
 EF_PORTAL_EFADMIN_PASSWORD=$(echo "efadmin@#@$(printf '%04d' $((RANDOM % 10000)))")
 EF_PORTAL_LICENSE_FILE=""
+EF_PORTAL_HTTPS_PORT="8443"
 JAVA_FILE_URL="https://www.ni-sp.com/wp-content/uploads/2019/10/jdk-11.0.19_linux-x64_bin.tar.gz"
 JAVA_FILE_NAME=$(basename $JAVA_FILE_URL)
 
@@ -28,6 +29,10 @@ checkParameters()
                 ;;
             --license_file=*)
                 EF_PORTAL_LICENSE_FILE="${arg#--license_file=}"
+                shift
+                ;;
+            --https_port=*)
+                EF_PORTAL_HTTPS_PORT="${arg#--https_port=}"
                 shift
                 ;;
         esac
@@ -104,6 +109,8 @@ setupEfportal()
 
     wget --quiet --no-check-certificate $EF_PORTAL_CONFIG_URL
     [ $? -ne 0 ] && echo "Failed to download >>> ${EF_PORTAL_CONFIG_NAME} <<<. Exiting..." && exit 4
+
+    sed -i "s/kernel.tomcat.https.port.*=.*/kernel.tomcat.https.port = $EF_PORTAL_HTTPS_PORT/" ${EF_PORTAL_CONFIG_NAME}
 
     if cat /etc/os-release | egrep -iq "(ubuntu|debian)"
     then

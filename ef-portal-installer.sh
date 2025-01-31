@@ -28,6 +28,8 @@ checkParameters()
                 ;;
             --license_file=*)
                 EF_PORTAL_LICENSE_FILE="${arg#--license_file=}"
+                shift
+                ;;
         esac
     done
 

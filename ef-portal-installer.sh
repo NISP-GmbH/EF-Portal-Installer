@@ -102,7 +102,7 @@ setupEfportal()
     rm -f $JAVA_FILE_NAME
 
     sudo bash -c "useradd -m ${EF_PORTAL_EFADMIN_USER} && useradd -m efnobody && rm -rf /opt/nisp/enginframe"
-    sudo bash -c "echo $EF_PORTAL_EFADMIN_PASSWORD | passwd --stdin ${EF_PORTAL_EFADMIN_USER}"
+    echo -e "${EF_PORTAL_EFADMIN_PASSWORD}\n${EF_PORTAL_EFADMIN_PASSWORD}" | sudo passwd ${EF_PORTAL_EFADMIN_USER}
 
     wget --quiet --no-check-certificate $EF_PORTAL_JAR_URL
     [ $? -ne 0 ] && echo "Failed to download >>> ${EF_PORTAL_JAR_NAME} <<<. Exiting..." && exit 3

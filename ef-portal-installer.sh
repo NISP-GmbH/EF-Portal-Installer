@@ -117,7 +117,7 @@ setupEfportal()
         sed -i 's/system-auth/common-auth/' ${EF_PORTAL_CONFIG_NAME}
     fi
 
-    sudo bash -c "export JAVA_HOME=/usr/local/jdk-11.0.19 && export PATH=$JAVA_HOME/bin:$PATH && umask 022 && java -jar ${EF_PORTAL_JAR_NAME} --batch -f ${EF_PORTAL_CONFIG_NAME}"
+    sudo bash -c "export JAVA_HOME=/usr/local/jdk-11.0.19 && export PATH=\$JAVA_HOME/bin:\$PATH && umask 022 && java -jar ${EF_PORTAL_JAR_NAME} --batch -f ${EF_PORTAL_CONFIG_NAME}"
     sudo systemctl enable --now enginframe.service
 
     rm -f $EF_PORTAL_JAR_NAME $EF_PORTAL_CONFIG_NAME

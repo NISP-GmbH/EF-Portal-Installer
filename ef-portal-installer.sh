@@ -38,13 +38,10 @@ checkParameters()
         esac
     done
 
-    if ! $EF_PORTAL_SLURM_SUPPORT
+    if ! $EF_PORTAL_SLURM_SUPPORT && ! $EF_PORTAL_DCVSM_SUPPORT
     then
-        if ! $EF_PORTAL_DCVSM_SUPPORT
-        then
-            echo "You need to enable DCV SM or SLURM to setup. Exiting..."
-            exit 6
-        fi
+        echo "You need to enable DCV SM or SLURM to setup. Exiting..."
+        exit 6
     fi
 
     if [[ "${EF_PORTAL_LICENSE_FILE}x" == "x" ]]

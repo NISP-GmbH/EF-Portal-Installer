@@ -21,7 +21,16 @@ Please provide the absolut path. Examples:
 --license_file=/root/license.ef
 ```
 
-## How to setup with
+## Parameters:
+
+* --license_file= : Absolut path of license file
+* --slurm_support=true : enable slurm as jobmaneger during setup
+* --dcvsm_support=true : enable dcvsm as jobmanager during setup
+* --https_port= : customize the web gui https port
+
+# Execution examples
+
+## How to setup...
 
 ### without any job manager
 
@@ -48,8 +57,8 @@ sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.c
 sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --dcvsm_support=true --slurm_support=true --license_file=./license.ef
 ```
 
-## How to customize the https port
+## How to customize the web gui https port
 
 ```bash
-sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --license_file=./license.ef --https_port=9443
+sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --license_file=./license.ef --https_port=8448
 ```

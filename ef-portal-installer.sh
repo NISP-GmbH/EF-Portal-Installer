@@ -109,6 +109,26 @@ setupEfportal()
 
     sed -i "s/kernel.tomcat.https.port.*=.*/kernel.tomcat.https.port = $EF_PORTAL_HTTPS_PORT/" ${EF_PORTAL_CONFIG_NAME}
 
+    # if slurm and dcvsm will ne enabled
+    if $EF_PORTAL_SLURM_SUPPORT && $EF_PORTAL_DCVSM_SUPPORT
+    then
+       # if dcvsm and slurm
+       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = dcvsm,slurm/" ${EF_PORTAL_CONFIG_NAME}
+    elif $EF_PORTAL_SLURM_SUPPORT && ! $EF_PORTAL_DCVSM_SUPPORT
+    then
+       # if just slurm
+       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = slurm/" ${EF_PORTAL_CONFIG_NAME}
+    elif ! $EF_PORTAL_SLURM_SUPPORT && $EF_PORTAL_DCVSM_SUPPORT
+    then
+       # if just dcvsm
+       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = dcvsm/" ${EF_PORTAL_CONFIG_NAME}
+    else
+       # if nothing
+       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = /" ${EF_PORTAL_CONFIG_NAME}
+    fi
+
+
+
     if cat /etc/os-release | egrep -iq "(ubuntu|debian)"
     then
         sed -i 's/system-auth/common-auth/' ${EF_PORTAL_CONFIG_NAME}

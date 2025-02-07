@@ -118,7 +118,7 @@ setupEfportal()
        sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = dcvsm/" ${EF_PORTAL_CONFIG_NAME}
     else
        # if nothing
-       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = /" ${EF_PORTAL_CONFIG_NAME}
+       sed -i "s/ef.jobmanager.*=.*/#ef.jobmanager = /" ${EF_PORTAL_CONFIG_NAME}
     fi
 
 

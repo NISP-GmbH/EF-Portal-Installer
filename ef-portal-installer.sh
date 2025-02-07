@@ -129,6 +129,10 @@ setupEfportal()
     fi
 
     sudo bash -c "export JAVA_HOME=/usr/local/jdk-11.0.19 && export PATH=\$JAVA_HOME/bin:\$PATH && umask 022 && java -jar ${EF_PORTAL_JAR_NAME} --batch -f ${EF_PORTAL_CONFIG_NAME}"
+
+    return_code=$?
+    [ $return_code -ne 0 ] && echo "Failed to setup EF Portal. The exit error was >>> $return_code <<<. Exiting..." && exit 6
+    
     sudo systemctl enable --now enginframe.service
 
     rm -f $EF_PORTAL_JAR_NAME $EF_PORTAL_CONFIG_NAME

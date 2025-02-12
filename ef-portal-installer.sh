@@ -40,7 +40,7 @@ checkParameters()
 
     if [[ "${EF_PORTAL_LICENSE_FILE}x" == "x" ]]
     then
-        echo "You need to provide the parameter >>> \$-license_file= <<<. Exiting..."
+        echo "You need to provide the parameter >>> --license_file= <<<. Exiting..."
         exit 7
     fi 
 

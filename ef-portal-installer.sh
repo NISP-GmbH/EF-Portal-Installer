@@ -2,9 +2,19 @@
 
 # variables
 EF_PORTAL_JAR_URL="https://ni-sp.com/wp-content/uploads/2019/10/efportal-latest.jar"
-EF_PORTAL_JAR_NAME=$(basename $EF_PORTAL_JAR_URL)
+
+if [[ "${EF_PORTAL_JAR_NAME}x" == "x" ]]
+then
+    EF_PORTAL_JAR_NAME=$(basename $EF_PORTAL_JAR_URL)
+fi
+
 EF_PORTAL_CONFIG_URL="https://www.ni-sp.com/wp-content/uploads/2019/10/EFP-Download/efinstall.config"
-EF_PORTAL_CONFIG_NAME=$(basename $EF_PORTAL_CONFIG_URL)
+
+if [[ "${EF_PORTAL_CONFIG_NAME}x" == "x" ]]
+then 
+    EF_PORTAL_CONFIG_NAME=$(basename $EF_PORTAL_CONFIG_URL)
+fi
+
 EF_PORTAL_SLURM_SUPPORT="false"
 EF_PORTAL_DCVSM_SUPPORT="false"
 EF_PORTAL_EFADMIN_USER="efadmin"
@@ -95,11 +105,17 @@ setupEfportal()
     sudo bash -c "useradd -m ${EF_PORTAL_EFADMIN_USER} && useradd -m efnobody && rm -rf /opt/nisp/enginframe"
     echo -e "${EF_PORTAL_EFADMIN_PASSWORD}\n${EF_PORTAL_EFADMIN_PASSWORD}" | sudo passwd ${EF_PORTAL_EFADMIN_USER}
 
-    wget --quiet --no-check-certificate $EF_PORTAL_JAR_URL
-    [ $? -ne 0 ] && echo "Failed to download >>> ${EF_PORTAL_JAR_NAME} <<<. Exiting..." && exit 3
+    if [ ! -f ${EF_PORTAL_JAR_NAME} ]
+    then
+        wget --quiet --no-check-certificate $EF_PORTAL_JAR_URL
+        [ $? -ne 0 ] && echo "Failed to download >>> ${EF_PORTAL_JAR_NAME} <<<. Exiting..." && exit 3
+    fi
 
-    wget --quiet --no-check-certificate $EF_PORTAL_CONFIG_URL
-    [ $? -ne 0 ] && echo "Failed to download >>> ${EF_PORTAL_CONFIG_NAME} <<<. Exiting..." && exit 4
+    if [ ! -f ${EF_PORTAL_CONFIG_NAME} ]
+    then
+        wget --quiet --no-check-certificate $EF_PORTAL_CONFIG_URL
+        [ $? -ne 0 ] && echo "Failed to download >>> ${EF_PORTAL_CONFIG_NAME} <<<. Exiting..." && exit 4
+    fi
 
     sed -i "s/kernel.tomcat.https.port.*=.*/kernel.tomcat.https.port = $EF_PORTAL_HTTPS_PORT/" ${EF_PORTAL_CONFIG_NAME}
 
@@ -120,9 +136,7 @@ setupEfportal()
        # if nothing
        sed -i "s/ef.jobmanager.*=.*/#ef.jobmanager = /" ${EF_PORTAL_CONFIG_NAME}
     fi
-
-
-
+    
     if cat /etc/os-release | egrep -iq "(ubuntu|debian)"
     then
         sed -i 's/system-auth/common-auth/' ${EF_PORTAL_CONFIG_NAME}

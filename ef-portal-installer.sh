@@ -21,11 +21,21 @@ EF_PORTAL_EFADMIN_USER="efadmin"
 EF_PORTAL_EFADMIN_PASSWORD=$(echo "efadmin@#@$(printf '%04d' $((RANDOM % 10000)))")
 EF_PORTAL_LICENSE_FILE=""
 EF_PORTAL_HTTPS_PORT="8443"
+EF_PORTAL_SILENT_SETUP="false"
 JAVA_FILE_URL="https://www.ni-sp.com/wp-content/uploads/2019/10/jdk-11.0.19_linux-x64_bin.tar.gz"
 JAVA_FILE_NAME=$(basename $JAVA_FILE_URL)
 
+printMessage()
+{
+	if ! $EF_PORTAL_SILENT_SETUP
+	then
+		echo $@
+	fi
+}
+
 checkParameters()
 {
+	printMessage "Checking parameters..."
     for arg in "$@"
     do
         case $arg in
@@ -45,18 +55,22 @@ checkParameters()
                 EF_PORTAL_HTTPS_PORT="${arg#--https_port=}"
                 shift
                 ;;
+			--silent)
+				EF_PORTAL_SILENT_SETUP= "true"
+				shift
+				;;
         esac
     done
 
     if [[ "${EF_PORTAL_LICENSE_FILE}x" == "x" ]]
     then
-        echo "You need to provide the parameter >>> --license_file= <<<. Exiting..."
+		printMessage "You need to provide the parameter >>> --license_file= <<<. Exiting..."
         exit 7
     fi 
 
     if [ ! -f $EF_PORTAL_LICENSE_FILE ]
     then
-        echo "The file >>> $EF_PORTAL_LICENSE_FILE <<< was not found. You need to specify an existing file for the license. Exiting..."
+		printMessage "The file >>> $EF_PORTAL_LICENSE_FILE <<< was not found. You need to specify an existing file for the license. Exiting..."
         exit 8
     fi
 }
@@ -64,6 +78,7 @@ checkParameters()
 # Setup environment
 prepareEnvironment()
 {
+	printMessage "Preparing the environment..."
     cat <<EOF >> ~/.bashrc 
 alias p=pushd
 alias l="ls -ltr"
@@ -78,6 +93,7 @@ export PATH=\$JAVA_HOME/bin:\$PATH
 EOF
     source ~/.bashrc
 
+	printMessage "Installing needed packages..."
     if cat /etc/os-release | egrep -iq "(ubuntu|debian)"
     then
         sudo apt update -y

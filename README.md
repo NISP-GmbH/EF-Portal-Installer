@@ -27,6 +27,7 @@ Please provide the absolut path. Examples:
 * --slurm_support=true : enable slurm as jobmaneger during setup
 * --dcvsm_support=true : enable dcvsm as jobmanager during setup
 * --https_port= : customize the web gui https port
+* --start-enginframe-at-boot= : control whether EnginFrame starts at boot (values: `true` or `false`, default: `true`)
 
 # Execution examples
 
@@ -61,4 +62,10 @@ sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.c
 
 ```bash
 sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --license_file=./license.ef --https_port=8448
+```
+
+## How to disable EnginFrame start at boot
+
+```bash
+sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --license_file=./license.ef --start-enginframe-at-boot=false
 ```

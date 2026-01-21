@@ -21,6 +21,7 @@ EF_PORTAL_EFADMIN_USER="efadmin"
 EF_PORTAL_EFADMIN_PASSWORD=$(echo "efadmin@#@$(printf '%04d' $((RANDOM % 10000)))")
 EF_PORTAL_LICENSE_FILE=""
 EF_PORTAL_HTTPS_PORT="8443"
+EF_PORTAL_START_AT_BOOT="true"
 JAVA_FILE_URL="https://www.ni-sp.com/wp-content/uploads/2019/10/jdk-11.0.19_linux-x64_bin.tar.gz"
 JAVA_FILE_NAME=$(basename $JAVA_FILE_URL)
 
@@ -45,6 +46,10 @@ checkParameters()
                 EF_PORTAL_HTTPS_PORT="${arg#--https_port=}"
                 shift
                 ;;
+            --start-enginframe-at-boot=*)
+                EF_PORTAL_START_AT_BOOT="${arg#--start-enginframe-at-boot=}"
+                shift
+                ;;
         esac
     done
 
@@ -58,6 +63,13 @@ checkParameters()
     then
         echo "The file >>> $EF_PORTAL_LICENSE_FILE <<< was not found. You need to specify an existing file for the license. Exiting..."
         exit 8
+    fi
+
+    # Validate --start-enginframe-at-boot parameter
+    if [[ "${EF_PORTAL_START_AT_BOOT}" != "true" && "${EF_PORTAL_START_AT_BOOT}" != "false" ]]
+    then
+        echo "Invalid value for --start-enginframe-at-boot=. Must be 'true' or 'false'. Exiting..."
+        exit 9
     fi
 }
 
@@ -140,6 +152,12 @@ setupEfportal()
     if cat /etc/os-release | egrep -iq "(ubuntu|debian)"
     then
         sed -i 's/system-auth/common-auth/' ${EF_PORTAL_CONFIG_NAME}
+    fi
+
+    # If start-enginframe-at-boot is false, update the config file
+    if [[ "${EF_PORTAL_START_AT_BOOT}" == "false" ]]
+    then
+        sed -i 's/^start_enginframe_at_boot.*=.*/start_enginframe_at_boot = false/' ${EF_PORTAL_CONFIG_NAME}
     fi
 
     sudo bash -c "export JAVA_HOME=/usr/local/jdk-11.0.19 && export PATH=\$JAVA_HOME/bin:\$PATH && umask 022 && java -jar ${EF_PORTAL_JAR_NAME} --batch -f ${EF_PORTAL_CONFIG_NAME}"

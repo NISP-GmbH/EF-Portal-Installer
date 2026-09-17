@@ -90,7 +90,7 @@ export PATH=\$JAVA_HOME/bin:\$PATH
 EOF
     source ~/.bashrc
 
-    if cat /etc/os-release | egrep -iq "(ubuntu|debian)"
+    if cat /etc/os-release | grep -Eiq "(ubuntu|debian)"
     then
         sudo apt update -y
         sudo apt install unzip tar -y
@@ -149,7 +149,7 @@ setupEfportal()
        sed -i "s/ef.jobmanager.*=.*/#ef.jobmanager = /" ${EF_PORTAL_CONFIG_NAME}
     fi
     
-    if cat /etc/os-release | egrep -iq "(ubuntu|debian)"
+    if cat /etc/os-release | grep -Eiq "(ubuntu|debian)"
     then
         sed -i 's/system-auth/common-auth/' ${EF_PORTAL_CONFIG_NAME}
     fi

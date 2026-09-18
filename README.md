@@ -28,8 +28,8 @@ the script uses it automatically and tells you which file it picked.
 ## Parameters:
 
 * --license_file= : Absolut path of license file. Can be omitted when a `license.ef` file is present in the current directory
-* --slurm_support=true : enable slurm as jobmaneger during setup
-* --dcvsm_support=true : enable dcvsm as jobmanager during setup
+* --slurm_support= : enable slurm as jobmaneger during setup (values: `true` or `false`, default: `false`)
+* --dcvsm_support= : enable dcvsm as jobmanager during setup (values: `true` or `false`, default: `false`)
 * --https_port= : customize the web gui https port
 * --start-enginframe-at-boot= : control whether EnginFrame starts at boot (values: `true` or `false`, default: `true`)
 * --jar_file= : use a local EF Portal .jar file instead of downloading it

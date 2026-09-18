@@ -46,8 +46,10 @@ Optional parameters:
   --jar_file=<path>                Use a local EF Portal .jar file instead of downloading it
                                    from ${EF_PORTAL_JAR_URL}
                                    The file is kept after the setup.
-  --slurm_support=true             Enable slurm as jobmanager during setup. (default: false)
-  --dcvsm_support=true             Enable dcvsm as jobmanager during setup. (default: false)
+  --slurm_support=<b>              Enable slurm as jobmanager during setup.
+                                   Values: true or false. (default: ${EF_PORTAL_SLURM_SUPPORT})
+  --dcvsm_support=<b>              Enable dcvsm as jobmanager during setup.
+                                   Values: true or false. (default: ${EF_PORTAL_DCVSM_SUPPORT})
   --https_port=<port>              Customize the web gui https port. (default: ${EF_PORTAL_HTTPS_PORT})
   --start-enginframe-at-boot=<b>   Control whether EnginFrame starts at boot.
                                    Values: true or false. (default: ${EF_PORTAL_START_AT_BOOT})
@@ -78,12 +80,12 @@ checkParameters()
             -h|--help)
                 showHelp
                 ;;
-            --slurm_support=true)
-                EF_PORTAL_SLURM_SUPPORT="true"
+            --slurm_support=*)
+                EF_PORTAL_SLURM_SUPPORT="${arg#--slurm_support=}"
                 shift
                 ;;
-            --dcvsm_support=true)
-                EF_PORTAL_DCVSM_SUPPORT="true"
+            --dcvsm_support=*)
+                EF_PORTAL_DCVSM_SUPPORT="${arg#--dcvsm_support=}"
                 shift
                 ;;
             --license_file=*)
@@ -148,6 +150,20 @@ checkParameters()
         echo "Invalid value for --start-enginframe-at-boot=. Must be 'true' or 'false'. Exiting..."
         exit 9
     fi
+
+    # Validate --slurm_support parameter
+    if [[ "${EF_PORTAL_SLURM_SUPPORT}" != "true" && "${EF_PORTAL_SLURM_SUPPORT}" != "false" ]]
+    then
+        echo "Invalid value for --slurm_support=. Must be 'true' or 'false'. Exiting..."
+        exit 11
+    fi
+
+    # Validate --dcvsm_support parameter
+    if [[ "${EF_PORTAL_DCVSM_SUPPORT}" != "true" && "${EF_PORTAL_DCVSM_SUPPORT}" != "false" ]]
+    then
+        echo "Invalid value for --dcvsm_support=. Must be 'true' or 'false'. Exiting..."
+        exit 12
+    fi
 }
 
 # Setup environment
@@ -210,21 +226,23 @@ setupEfportal()
     sed -i "s/kernel.tomcat.https.port.*=.*/kernel.tomcat.https.port = $EF_PORTAL_HTTPS_PORT/" ${EF_PORTAL_CONFIG_NAME}
 
     # if slurm and dcvsm will ne enabled
-    if $EF_PORTAL_SLURM_SUPPORT && $EF_PORTAL_DCVSM_SUPPORT
+    # the config file ships with >>> ef.jobmanager = dcvsm,slurm <<<, so the line
+    # has to be commented out when no job manager was asked for
+    if [[ "${EF_PORTAL_SLURM_SUPPORT}" == "true" && "${EF_PORTAL_DCVSM_SUPPORT}" == "true" ]]
     then
        # if dcvsm and slurm
-       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = dcvsm,slurm/" ${EF_PORTAL_CONFIG_NAME}
-    elif $EF_PORTAL_SLURM_SUPPORT && ! $EF_PORTAL_DCVSM_SUPPORT
+       sed -i "s/^#*ef\.jobmanager[[:space:]]*=.*/ef.jobmanager = dcvsm,slurm/" ${EF_PORTAL_CONFIG_NAME}
+    elif [[ "${EF_PORTAL_SLURM_SUPPORT}" == "true" && "${EF_PORTAL_DCVSM_SUPPORT}" != "true" ]]
     then
        # if just slurm
-       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = slurm/" ${EF_PORTAL_CONFIG_NAME}
-    elif ! $EF_PORTAL_SLURM_SUPPORT && $EF_PORTAL_DCVSM_SUPPORT
+       sed -i "s/^#*ef\.jobmanager[[:space:]]*=.*/ef.jobmanager = slurm/" ${EF_PORTAL_CONFIG_NAME}
+    elif [[ "${EF_PORTAL_SLURM_SUPPORT}" != "true" && "${EF_PORTAL_DCVSM_SUPPORT}" == "true" ]]
     then
        # if just dcvsm
-       sed -i "s/ef.jobmanager.*=.*/ef.jobmanager = dcvsm/" ${EF_PORTAL_CONFIG_NAME}
+       sed -i "s/^#*ef\.jobmanager[[:space:]]*=.*/ef.jobmanager = dcvsm/" ${EF_PORTAL_CONFIG_NAME}
     else
        # if nothing
-       sed -i "s/ef.jobmanager.*=.*/#ef.jobmanager = /" ${EF_PORTAL_CONFIG_NAME}
+       sed -i "s/^#*ef\.jobmanager[[:space:]]*=.*/#ef.jobmanager = /" ${EF_PORTAL_CONFIG_NAME}
     fi
     
     if cat /etc/os-release | grep -Eiq "(ubuntu|debian)"

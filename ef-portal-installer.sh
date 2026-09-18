@@ -15,6 +15,8 @@ then
     EF_PORTAL_CONFIG_NAME=$(basename $EF_PORTAL_CONFIG_URL)
 fi
 
+EF_PORTAL_JAR_FILE=""
+EF_PORTAL_JAR_DOWNLOADED="false"
 EF_PORTAL_SLURM_SUPPORT="false"
 EF_PORTAL_DCVSM_SUPPORT="false"
 EF_PORTAL_EFADMIN_USER="efadmin"
@@ -25,11 +27,51 @@ EF_PORTAL_START_AT_BOOT="true"
 JAVA_FILE_URL="https://www.ni-sp.com/wp-content/uploads/2019/10/jdk-11.0.19_linux-x64_bin.tar.gz"
 JAVA_FILE_NAME=$(basename $JAVA_FILE_URL)
 
+showHelp()
+{
+    cat <<EOF
+Usage: ef-portal-installer.sh --license_file=<path> [options]
+
+A script to setup EF Portal without interactions.
+
+Required parameters:
+
+  --license_file=<path>            Absolut path of the EF Portal license file (license.ef).
+
+Optional parameters:
+
+  --jar_file=<path>                Use a local EF Portal .jar file instead of downloading it
+                                   from ${EF_PORTAL_JAR_URL}
+                                   The file is kept after the setup.
+  --slurm_support=true             Enable slurm as jobmanager during setup. (default: false)
+  --dcvsm_support=true             Enable dcvsm as jobmanager during setup. (default: false)
+  --https_port=<port>              Customize the web gui https port. (default: ${EF_PORTAL_HTTPS_PORT})
+  --start-enginframe-at-boot=<b>   Control whether EnginFrame starts at boot.
+                                   Values: true or false. (default: ${EF_PORTAL_START_AT_BOOT})
+  -h, --help                       Show this help message and exit.
+
+Examples:
+
+  # setup without any job manager
+  ef-portal-installer.sh --license_file=./license.ef
+
+  # setup with slurm and dcvsm as job managers
+  ef-portal-installer.sh --license_file=./license.ef --slurm_support=true --dcvsm_support=true
+
+  # setup using a local .jar file
+  ef-portal-installer.sh --license_file=./license.ef --jar_file=./efportal-latest.jar
+EOF
+    exit 0
+}
+
 checkParameters()
 {
     for arg in "$@"
     do
         case $arg in
+            -h|--help)
+                showHelp
+                ;;
             --slurm_support=true)
                 EF_PORTAL_SLURM_SUPPORT="true"
                 shift
@@ -40,6 +82,11 @@ checkParameters()
                 ;;
             --license_file=*)
                 EF_PORTAL_LICENSE_FILE="${arg#--license_file=}"
+                shift
+                ;;
+            --jar_file=*)
+                EF_PORTAL_JAR_FILE="${arg#--jar_file=}"
+                EF_PORTAL_JAR_NAME="${EF_PORTAL_JAR_FILE}"
                 shift
                 ;;
             --https_port=*)
@@ -63,6 +110,12 @@ checkParameters()
     then
         echo "The file >>> $EF_PORTAL_LICENSE_FILE <<< was not found. You need to specify an existing file for the license. Exiting..."
         exit 8
+    fi
+
+    if [[ "${EF_PORTAL_JAR_FILE}x" != "x" ]] && [ ! -f "$EF_PORTAL_JAR_FILE" ]
+    then
+        echo "The file >>> $EF_PORTAL_JAR_FILE <<< was not found. You need to specify an existing .jar file. Exiting..."
+        exit 10
     fi
 
     # Validate --start-enginframe-at-boot parameter
@@ -121,6 +174,7 @@ setupEfportal()
     then
         wget --quiet --no-check-certificate $EF_PORTAL_JAR_URL
         [ $? -ne 0 ] && echo "Failed to download >>> ${EF_PORTAL_JAR_NAME} <<<. Exiting..." && exit 3
+        EF_PORTAL_JAR_DOWNLOADED="true"
     fi
 
     if [ ! -f ${EF_PORTAL_CONFIG_NAME} ]
@@ -167,7 +221,13 @@ setupEfportal()
     
     sudo systemctl enable --now enginframe.service
 
-    rm -f $EF_PORTAL_JAR_NAME $EF_PORTAL_CONFIG_NAME
+    rm -f $EF_PORTAL_CONFIG_NAME
+
+    # only remove the jar file when this script downloaded it
+    if [[ "${EF_PORTAL_JAR_DOWNLOADED}" == "true" ]]
+    then
+        rm -f $EF_PORTAL_JAR_NAME
+    fi
 }
 
 printPassword()

@@ -28,6 +28,8 @@ Please provide the absolut path. Examples:
 * --dcvsm_support=true : enable dcvsm as jobmanager during setup
 * --https_port= : customize the web gui https port
 * --start-enginframe-at-boot= : control whether EnginFrame starts at boot (values: `true` or `false`, default: `true`)
+* --jar_file= : use a local EF Portal .jar file instead of downloading it
+* --help, -h : show the help message with all the parameters and exit
 
 # Execution examples
 
@@ -68,4 +70,22 @@ sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.c
 
 ```bash
 sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --license_file=./license.ef --start-enginframe-at-boot=false
+```
+
+## How to use a local .jar file
+
+By default the EF Portal .jar file is downloaded from the NI-SP website. To install from a
+.jar file that you already have, provide it to the parameter --jar_file=.
+
+The path can be absolut or relative to the directory where you execute the script. A .jar file
+provided this way is not removed after the setup.
+
+```bash
+sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --license_file=./license.ef --jar_file=/root/efportal-latest.jar
+```
+
+## How to show the help message
+
+```bash
+sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --help
 ```

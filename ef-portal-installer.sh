@@ -22,6 +22,7 @@ EF_PORTAL_DCVSM_SUPPORT="false"
 EF_PORTAL_EFADMIN_USER="efadmin"
 EF_PORTAL_EFADMIN_PASSWORD=$(echo "efadmin@#@$(printf '%04d' $((RANDOM % 10000)))")
 EF_PORTAL_LICENSE_FILE=""
+EF_PORTAL_LICENSE_DEFAULT_NAME="license.ef"
 EF_PORTAL_HTTPS_PORT="8443"
 EF_PORTAL_START_AT_BOOT="true"
 JAVA_FILE_URL="https://www.ni-sp.com/wp-content/uploads/2019/10/jdk-11.0.19_linux-x64_bin.tar.gz"
@@ -30,13 +31,15 @@ JAVA_FILE_NAME=$(basename $JAVA_FILE_URL)
 showHelp()
 {
     cat <<EOF
-Usage: ef-portal-installer.sh --license_file=<path> [options]
+Usage: ef-portal-installer.sh [--license_file=<path>] [options]
 
 A script to setup EF Portal without interactions.
 
-Required parameters:
+License (required, as a parameter or as a file):
 
   --license_file=<path>            Absolut path of the EF Portal license file (license.ef).
+                                   Optional when a ${EF_PORTAL_LICENSE_DEFAULT_NAME} file is present in the current
+                                   directory or next to this script, which is then used.
 
 Optional parameters:
 
@@ -54,6 +57,9 @@ Examples:
 
   # setup without any job manager
   ef-portal-installer.sh --license_file=./license.ef
+
+  # same, using the license.ef file found in the current directory
+  ef-portal-installer.sh
 
   # setup with slurm and dcvsm as job managers
   ef-portal-installer.sh --license_file=./license.ef --slurm_support=true --dcvsm_support=true
@@ -100,9 +106,27 @@ checkParameters()
         esac
     done
 
+    # if no license file was given, look for license.ef in the current directory
+    # and then in the directory where this script is located
     if [[ "${EF_PORTAL_LICENSE_FILE}x" == "x" ]]
     then
-        echo "You need to provide the parameter >>> --license_file= <<<. Exiting..."
+        if [ -f "./${EF_PORTAL_LICENSE_DEFAULT_NAME}" ]
+        then
+            EF_PORTAL_LICENSE_FILE="./${EF_PORTAL_LICENSE_DEFAULT_NAME}"
+        elif [ -f "${BASH_SOURCE[0]}" ] && [ -f "$(dirname "${BASH_SOURCE[0]}")/${EF_PORTAL_LICENSE_DEFAULT_NAME}" ]
+        then
+            EF_PORTAL_LICENSE_FILE="$(dirname "${BASH_SOURCE[0]}")/${EF_PORTAL_LICENSE_DEFAULT_NAME}"
+        fi
+
+        if [[ "${EF_PORTAL_LICENSE_FILE}x" != "x" ]]
+        then
+            echo "The parameter >>> --license_file= <<< was not provided. Using the license file found in >>> ${EF_PORTAL_LICENSE_FILE} <<<."
+        fi
+    fi
+
+    if [[ "${EF_PORTAL_LICENSE_FILE}x" == "x" ]]
+    then
+        echo "You need to provide the parameter >>> --license_file= <<< or leave the >>> ${EF_PORTAL_LICENSE_DEFAULT_NAME} <<< file in the current directory. Exiting..."
         exit 7
     fi 
 

@@ -21,9 +21,13 @@ Please provide the absolut path. Examples:
 --license_file=/root/license.ef
 ```
 
+The parameter can be omitted when a file named `license.ef` is present in the directory where
+you execute the script (or in the directory where the script itself is located). In that case
+the script uses it automatically and tells you which file it picked.
+
 ## Parameters:
 
-* --license_file= : Absolut path of license file
+* --license_file= : Absolut path of license file. Can be omitted when a `license.ef` file is present in the current directory
 * --slurm_support=true : enable slurm as jobmaneger during setup
 * --dcvsm_support=true : enable dcvsm as jobmanager during setup
 * --https_port= : customize the web gui https port
@@ -39,6 +43,12 @@ Please provide the absolut path. Examples:
 
 ```bash
 sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh --license_file=./license.ef
+```
+
+### without any job manager, using the license.ef of the current directory
+
+```bash
+sudo bash -c "$(wget --no-check-certificate -qO- https://raw.githubusercontent.com/NISP-GmbH/EF-Portal-Installer/refs/heads/main/ef-portal-installer.sh)" bash ef-portal-installer.sh
 ```
 
 ### SLURM configured as job manager

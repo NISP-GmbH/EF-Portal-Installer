@@ -1,0 +1,5 @@
+# files that the installer downloads or consumes in the working directory
+jdk-*.tar.gz
+efportal-*.jar
+efinstall.config
+license.ef

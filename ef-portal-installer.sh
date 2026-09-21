@@ -183,12 +183,18 @@ export PATH=\$JAVA_HOME/bin:\$PATH
 EOF
     source ~/.bashrc
 
+    # wget is used to download the java, jar and config files; fontconfig and
+    # the DejaVu fonts are needed by the java gui rendering of EF Portal.
+    # Minimal images do not ship them
     if cat /etc/os-release | grep -Eiq "(ubuntu|debian)"
     then
+        # fonts-dejavu-core has DejaVu Sans and, from Ubuntu 24.04 on, pulls
+        # DejaVu Sans Mono from fonts-dejavu-mono as a dependency
         sudo apt update -y
-        sudo apt install unzip tar -y
+        sudo apt install wget unzip tar fontconfig fonts-dejavu-core -y
     else
-        sudo yum install emacs-nox unzip tar -y
+        # on RedHat based 10 emacs-nox is provided by the emacs-nw package
+        sudo yum install emacs-nox wget unzip tar fontconfig dejavu-sans-fonts dejavu-sans-mono-fonts -y
     fi
 }
 

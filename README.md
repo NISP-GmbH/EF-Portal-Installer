@@ -5,7 +5,7 @@ A script to setup EF Portal without interactions.
 Supported Linux distributions:
 
 * Ubuntu based: 20.04, 22.04 and 24.04.
-* RedHat based: 8 and 9.
+* RedHat based: 8, 9 and 10.
 
 # Requirements to execute
 
